@@ -21,7 +21,7 @@ class UserService{
                     user_name, profile_picture, email, hashedPassword
                     ]
             )
-            
+            delete newUser.rows[0].password
             const mainList = await todo_listService.createUserMainList(newUser.rows[0].user_id)
             return(newUser.rows)
         } catch(err){
@@ -66,13 +66,14 @@ class UserService{
     getUserProfile = async (user_id) =>{
         const profile = await pool.query("SELECT * FROM user_account WHERE  user_id = $1", [user_id])
         let result = profile.rows[0]
-        result.password = null
+        delete result.password
         return result
     }
 
     updateUserProfilePicture = async (user_id, profile_picture) =>{
-        const result = await pool.query("UPDATE user_account SET profile_picture = $1 WHERE user_id = $2", [profile_picture, user_id])
-        return result
+        const result = await pool.query("UPDATE user_account SET profile_picture = $1 WHERE user_id = $2 RETURNING *", [profile_picture, user_id])
+        delete result.rows[0].password
+        return result.rows
     }
 }
 

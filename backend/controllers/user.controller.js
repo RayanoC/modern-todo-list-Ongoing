@@ -1,4 +1,3 @@
-const { ErrorHandler } = require('../helper/error')
 const userService = require('../services/user.service')
 
 const signUpUser = async(req,res)=>{
@@ -18,15 +17,16 @@ const getAllUser = async(req, res)=>{
 }
 
 const getProfile = async(req, res)=>{
-    const result = await userService.getUserProfile(req.user.user_id)
+    let result = await userService.getUserProfile(req.user.user_id)
+    const host = req.get('host')
+    result.profile_picture = "http://" + host + result.profile_picture
     res.json(result)
 }
 
-const updateProfilePicture = async(req, res) =>{
-
-    // const user_id = req.user.user_id
-    // const profile_picture = ""
-    // const result = await userService.updateUserProfilePicture(user_id, profile_picture)
+const uploadProfilePicture = async(req, res) =>{
+    const user_id = req.user.user_id
+    const profile_picture = req.file.destination.replace("./uploads","")+"/"+req.file.filename
+    const result = await userService.updateUserProfilePicture(user_id, profile_picture)
     res.json(result)
 }
 
@@ -35,5 +35,5 @@ module.exports = {
     deleteAllUser,
     getAllUser,
     getProfile,
-    updateProfilePicture
+    uploadProfilePicture
 }
